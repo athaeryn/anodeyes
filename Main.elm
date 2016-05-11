@@ -1,7 +1,8 @@
 module Anodeyes exposing (..)
 
 import Html exposing (..)
+import Html.Attributes exposing (..)
 
 main =
-  div [] [ text "A N O D E Y E S" ]
+  div [] [ img [ src "anodeyes.svg", width 400 ] [] ]
 
