@@ -5,8 +5,10 @@ import Html.App as Html
 import Html.Attributes exposing (..)
 
 import Dial
+import Toggle
 
 type Msg
+  -- Dials
   = Volume Dial.Msg
   | AmpDecay Dial.Msg
   | FilterDecay Dial.Msg
@@ -16,6 +18,12 @@ type Msg
   | Detune Dial.Msg
   | Rate Dial.Msg
   | Depth Dial.Msg
+  -- Toggles
+  | Sustain Toggle.Msg
+  | WaveBank Toggle.Msg
+  | LFODest Toggle.Msg
+  | Octave Toggle.Msg
+
 
 type alias Model =
   { volume : Dial.Model
@@ -31,6 +39,11 @@ type alias Model =
   -- LFO
   , rate : Dial.Model
   , depth : Dial.Model
+  -- toggles
+  , sustain : Toggle.Model
+  , waveBank : Toggle.Model
+  , lfoDest : Toggle.Model
+  , octave : Toggle.Model
   }
 
 
@@ -45,6 +58,11 @@ model =
   , detune = Dial.Model 0 "detune"
   , rate = Dial.Model 0 "rate"
   , depth = Dial.Model 0 "depth"
+
+  , sustain = Toggle.Model False "sustain" "off" "on"
+  , waveBank = Toggle.Model False "wave bank" "a" "b"
+  , lfoDest = Toggle.Model False "lfo dest" "osc" "filter"
+  , octave = Toggle.Model False "octave" "down" "up"
   }
 
 
@@ -61,6 +79,10 @@ view model =
     , Html.map Detune (Dial.view model.detune)
     , Html.map Rate (Dial.view model.rate)
     , Html.map Depth (Dial.view model.depth)
+    , Html.map Sustain (Toggle.view model.sustain)
+    , Html.map WaveBank (Toggle.view model.waveBank)
+    , Html.map LFODest (Toggle.view model.lfoDest)
+    , Html.map Octave (Toggle.view model.octave)
     ]
 
 
@@ -85,6 +107,14 @@ update msg model =
       { model | rate = Dial.update msg model.rate }
     Depth msg ->
       { model | depth = Dial.update msg model.depth }
+    Sustain msg ->
+      { model | sustain = Toggle.update msg model.sustain }
+    WaveBank msg ->
+      { model | waveBank = Toggle.update msg model.waveBank }
+    LFODest msg ->
+      { model | lfoDest = Toggle.update msg model.lfoDest }
+    Octave msg ->
+      { model | octave = Toggle.update msg model.octave }
 
 
 main =
