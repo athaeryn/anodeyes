@@ -33,7 +33,6 @@ body {
 .control-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 30px;
 }
 
 .control-group__label {

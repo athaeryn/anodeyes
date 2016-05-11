@@ -62,7 +62,7 @@ model =
   , sustain = Toggle.Model False "sustain" "off" "on"
   , waveBank = Toggle.Model False "wave bank" "a" "b"
   , lfoDest = Toggle.Model False "lfo dest" "osc" "filter"
-  , octave = Toggle.Model False "octave" "down" "up"
+  , octave = Toggle.Model False "octave" "lo" "hi"
   }
 
 
