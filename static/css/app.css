@@ -1,0 +1,134 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #e7e7e7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: .8rem;
+}
+
+.anode {
+  background: linear-gradient(#3e3d3d, #222);
+  color: #e7e7e7;
+  border-radius: 10px;
+  padding: 30px;
+  width: 600px;
+  box-shadow: 0 8px 40px -10px black;
+}
+
+.anode__header {
+  display: flex;
+  justify-content: space-around;
+  height: 90px;
+  margin-bottom: 30px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 30px;
+}
+
+.control-group__label {
+  background: #565656;
+  color: #e7e7e7;
+  text-align: center;
+  text-transform: uppercase;
+  padding: .4rem;
+}
+
+.control-group__controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.control-group__controls > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+
+
+.control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.control__label {
+  margin-top: 15px;
+  text-transform: uppercase;
+}
+
+.control__dial,
+.control__toggle-switch {
+  -webkit-appearance: none;
+  height: 20px;
+  background: #222;
+  border-radius: 2px;
+  border: 1px solid #444;
+  cursor: pointer;
+}
+
+.control__dial:focus,
+.control__toggle-switch:focus {
+  outline: none;
+}
+
+.control__dial::-webkit-slider-thumb,
+.control__toggle-switch:after {
+  -webkit-appearance: none;
+  background: #f26522;
+  height: 20px;
+  width: 10px;
+  border-radius: 2px;
+}
+
+.control__toggle {
+  display: flex;
+  align-items: center;
+}
+
+.control__toggle span {
+  width: 40px;
+  color: #aaa;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+.control__toggle span:first-child {
+  text-align: right;
+  padding-right: 5px;
+}
+.control__toggle span:last-child {
+  text-align: left;
+  padding-left: 5px;
+}
+
+.control__toggle-switch {
+  position: relative;
+  height: 22px;
+  width: 40px;
+}
+.control__toggle-switch:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.control__toggle-switch:checked:after {
+  left: auto;
+  right: 0;
+}
+

@@ -40,13 +40,14 @@ view model =
     handleInput =
       \v -> SetValue (eventValueToNote v)
   in
-    div []
+    div [ class "control" ]
       [ input
-        [ type' "range",
-          H.min "0",
-          H.max "127",
-          value (toString model.value),
-          onInput handleInput
+        [ class "control__dial"
+        , type' "range"
+        , H.min "0"
+        , H.max "127"
+        , value (toString model.value)
+        , onInput handleInput
         ] []
-      , h4 [] [ text model.label ]
+      , span [ class "control__label" ] [ text model.label ]
       ]
