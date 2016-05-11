@@ -66,23 +66,36 @@ model =
   }
 
 
+controlGroup : String -> Html Msg -> Html Msg
+controlGroup label html =
+  div [] [ h1 [] [ text label ] , html ]
+
+
 view : Model -> Html Msg
 view model =
   div []
     [ img [ src "anodeyes.svg", width 300 ] []
     , Html.map Volume (Dial.view model.volume)
-    , Html.map AmpDecay (Dial.view model.ampDecay)
-    , Html.map FilterDecay (Dial.view model.filterDecay)
-    , Html.map Cutoff (Dial.view model.cutoff)
-    , Html.map Rez (Dial.view model.rez)
-    , Html.map Wave (Dial.view model.wave)
-    , Html.map Detune (Dial.view model.detune)
-    , Html.map Rate (Dial.view model.rate)
-    , Html.map Depth (Dial.view model.depth)
-    , Html.map Sustain (Toggle.view model.sustain)
+    , controlGroup "envelope" (div []
+      [ Html.map AmpDecay (Dial.view model.ampDecay)
+      , Html.map FilterDecay (Dial.view model.filterDecay)
+      , Html.map Sustain (Toggle.view model.sustain)
+      ])
+    , controlGroup "filter" (div []
+      [ Html.map Cutoff (Dial.view model.cutoff)
+      , Html.map Rez (Dial.view model.rez)
+      ])
+    , controlGroup "oscilators" (div []
+      [ Html.map Wave (Dial.view model.wave)
+      , Html.map Detune (Dial.view model.detune)
+      , Html.map Octave (Toggle.view model.octave)
+      ])
+    , controlGroup "oscilators" (div []
+      [ Html.map Rate (Dial.view model.rate)
+      , Html.map Depth (Dial.view model.depth)
+      ])
     , Html.map WaveBank (Toggle.view model.waveBank)
     , Html.map LFODest (Toggle.view model.lfoDest)
-    , Html.map Octave (Toggle.view model.octave)
     ]
 
 
