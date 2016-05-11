@@ -123,12 +123,10 @@ body {
 .control__toggle-switch:after {
   content: "";
   display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
+  transition: transform .05s ease-out;
 }
 .control__toggle-switch:checked:after {
   left: auto;
-  right: 0;
+  transform: translateX(27px);
 }
 
