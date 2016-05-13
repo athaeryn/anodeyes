@@ -45,21 +45,23 @@ type alias Model =
 
 init : (Model, Cmd Msg)
 init =
-  ( { ampDecay = Dial.Model 0 54 "amp decay"
-    , filterDecay = Dial.Model 0 53 "filter decay"
-    , cutoff = Dial.Model 0 52 "cutoff"
-    , wave = Dial.Model 0 51 "wave"
-    , detune = Dial.Model 0 50 "detune"
-    , rate = Dial.Model 0 49 "rate"
-    , depth = Dial.Model 0 48 "depth"
+  let
+    model =
+      { ampDecay = Dial.Model 0 54 "amp decay"
+      , filterDecay = Dial.Model 0 53 "filter decay"
+      , cutoff = Dial.Model 0 52 "cutoff"
+      , wave = Dial.Model 0 51 "wave"
+      , detune = Dial.Model 0 50 "detune"
+      , rate = Dial.Model 0 49 "rate"
+      , depth = Dial.Model 0 48 "depth"
+      , sustain = Toggle.Model 0 64 "sustain" "off" "on"
+      , waveBank = Toggle.Model 0 66 "wave bank" "a" "b"
+      , lfoDest = Toggle.Model 0 67 "lfo dest" "osc" "filter"
+      , octave = Toggle.Model 0 65 "octave" "lo" "hi"
+      }
+  in
+    (model, Cmd.none)
 
-    , sustain = Toggle.Model False 64 "sustain" "off" "on"
-    , waveBank = Toggle.Model False 66 "wave bank" "a" "b"
-    , lfoDest = Toggle.Model False 67 "lfo dest" "osc" "filter"
-    , octave = Toggle.Model False 65 "octave" "lo" "hi"
-    }
-  , Cmd.none
-  )
 
 controlGroup : String -> List (Html Msg) -> Html Msg
 controlGroup label html =
@@ -103,64 +105,47 @@ update msg model =
   case msg of
     -- Dials
     AmpDecay msg ->
-      let (updated, ccMsg) = updateDial msg model.ampDecay
-      in ({ model | ampDecay = updated }, cc ccMsg)
+      let updated = Dial.update msg model.ampDecay
+      in ({ model | ampDecay = updated }, sendCC updated)
     FilterDecay msg ->
-      let (updated, ccMsg) = updateDial msg model.filterDecay
-      in ({ model | filterDecay = updated }, cc ccMsg)
+      let updated = Dial.update msg model.filterDecay
+      in ({ model | filterDecay = updated }, sendCC updated)
     Cutoff msg ->
-      let (updated, ccMsg) = updateDial msg model.cutoff
-      in ({ model | cutoff = updated }, cc ccMsg)
+      let updated = Dial.update msg model.cutoff
+      in ({ model | cutoff = updated }, sendCC updated)
     Wave msg ->
-      let (updated, ccMsg) = updateDial msg model.wave
-      in ({ model | wave = updated }, cc ccMsg)
+      let updated = Dial.update msg model.wave
+      in ({ model | wave = updated }, sendCC updated)
     Detune msg ->
-      let (updated, ccMsg) = updateDial msg model.detune
-      in ({ model | detune = updated }, cc ccMsg)
+      let updated = Dial.update msg model.detune
+      in ({ model | detune = updated }, sendCC updated)
     Rate msg ->
-      let (updated, ccMsg) = updateDial msg model.rate
-      in ({ model | rate = updated }, cc ccMsg)
+      let updated = Dial.update msg model.rate
+      in ({ model | rate = updated }, sendCC updated)
     Depth msg ->
-      let (updated, ccMsg) = updateDial msg model.depth
-      in ({ model | depth = updated }, cc ccMsg)
+      let updated = Dial.update msg model.depth
+      in ({ model | depth = updated }, sendCC updated)
     -- Toggles
     Sustain msg ->
-      let (updated, ccMsg) = updateToggle msg model.sustain
-      in ({ model | sustain = updated }, cc ccMsg)
+      let updated = Toggle.update msg model.sustain
+      in ({ model | sustain = updated }, sendCC updated)
     WaveBank msg ->
-      let (updated, ccMsg) = updateToggle msg model.waveBank
-      in ({ model | waveBank = updated }, cc ccMsg)
+      let updated = Toggle.update msg model.waveBank
+      in ({ model | waveBank = updated }, sendCC updated)
     LFODest msg ->
-      let (updated, ccMsg) = updateToggle msg model.lfoDest
-      in ({ model | lfoDest = updated }, cc ccMsg)
+      let updated = Toggle.update msg model.lfoDest
+      in ({ model | lfoDest = updated }, sendCC updated)
     Octave msg ->
-      let (updated, ccMsg) = updateToggle msg model.octave
-      in ({ model | octave = updated }, cc ccMsg)
+      let updated = Toggle.update msg model.octave
+      in ({ model | octave = updated }, sendCC updated)
 
 
-updateDial : Dial.Msg -> Dial.Model -> (Dial.Model, CCMessage)
-updateDial msg model =
-  let
-    updated = Dial.update msg model
-    ccMsg = CCMessage updated.number updated.value
-  in
-    (updated, ccMsg)
+port cc : { number : Int, value : Int } -> Cmd msg
 
 
-updateToggle : Toggle.Msg -> Toggle.Model -> (Toggle.Model, CCMessage)
-updateToggle msg model =
-  let
-    updated = Toggle.update msg model
-    value = if updated.value then 127 else 0
-    ccMsg = CCMessage updated.number value
-  in
-    (updated, ccMsg)
-
-
-port cc : CCMessage -> Cmd msg
-
-
-type alias CCMessage = { number: Int , value: Int }
+sendCC : { a | number : Int, value : Int } -> Cmd msg
+sendCC { number, value } =
+  cc {number = number, value = value }
 
 
 main : Program Never

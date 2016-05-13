@@ -8,12 +8,22 @@ type Msg
   = SetValue Bool
 
 type alias Model =
-  { value : Bool
+  { value : Int
   , number : Int
   , label : String
   , leftLabel : String
   , rightLabel : String
   }
+
+
+valueAsBool : Model -> Bool
+valueAsBool model =
+  model.value == 127
+
+
+boolToValue : Bool -> Int
+boolToValue bool =
+  if bool then 127 else 0
 
 
 view : Model -> Html Msg
@@ -25,7 +35,7 @@ view model =
             [ class "control__toggle-switch"
             , type' "checkbox"
             , onCheck SetValue
-            , checked model.value
+            , checked (valueAsBool model)
             ] []
         , span [] [ text model.rightLabel ]
         ]
@@ -36,5 +46,5 @@ view model =
 update msg model =
   case msg of
     SetValue val ->
-      { model | value = val }
+      { model | value = boolToValue val }
 
