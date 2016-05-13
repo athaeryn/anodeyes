@@ -1,4 +1,4 @@
-module Anodeyes exposing (..)
+port module Anodeyes exposing (..)
 
 import Html exposing (..)
 import Html.App as Html
@@ -9,11 +9,9 @@ import Toggle
 
 type Msg
   -- Dials
-  = Volume Dial.Msg
-  | AmpDecay Dial.Msg
+  = AmpDecay Dial.Msg
   | FilterDecay Dial.Msg
   | Cutoff Dial.Msg
-  | Rez Dial.Msg
   | Wave Dial.Msg
   | Detune Dial.Msg
   | Rate Dial.Msg
@@ -26,13 +24,11 @@ type Msg
 
 
 type alias Model =
-  { volume : Dial.Model
   -- envelope
-  , ampDecay : Dial.Model
+  { ampDecay : Dial.Model
   , filterDecay : Dial.Model
   -- filter
   , cutoff : Dial.Model
-  , rez : Dial.Model
   -- oscilators
   , wave : Dial.Model
   , detune : Dial.Model
@@ -47,24 +43,23 @@ type alias Model =
   }
 
 
-model : Model
-model =
-  { volume = Dial.Model 0 "volume"
-  , ampDecay = Dial.Model 0 "amp decay"
-  , filterDecay = Dial.Model 0 "filter decay"
-  , cutoff = Dial.Model 0 "cutoff"
-  , rez = Dial.Model 0 "rez"
-  , wave = Dial.Model 0 "wave"
-  , detune = Dial.Model 0 "detune"
-  , rate = Dial.Model 0 "rate"
-  , depth = Dial.Model 0 "depth"
+init : (Model, Cmd Msg)
+init =
+  ( { ampDecay = Dial.Model 0 54 "amp decay"
+    , filterDecay = Dial.Model 0 53 "filter decay"
+    , cutoff = Dial.Model 0 52 "cutoff"
+    , wave = Dial.Model 0 51 "wave"
+    , detune = Dial.Model 0 50 "detune"
+    , rate = Dial.Model 0 49 "rate"
+    , depth = Dial.Model 0 48 "depth"
 
-  , sustain = Toggle.Model False "sustain" "off" "on"
-  , waveBank = Toggle.Model False "wave bank" "a" "b"
-  , lfoDest = Toggle.Model False "lfo dest" "osc" "filter"
-  , octave = Toggle.Model False "octave" "lo" "hi"
-  }
-
+    , sustain = Toggle.Model False 64 "sustain" "off" "on"
+    , waveBank = Toggle.Model False 66 "wave bank" "a" "b"
+    , lfoDest = Toggle.Model False 67 "lfo dest" "osc" "filter"
+    , octave = Toggle.Model False 65 "octave" "lo" "hi"
+    }
+  , Cmd.none
+  )
 
 controlGroup : String -> List (Html Msg) -> Html Msg
 controlGroup label html =
@@ -79,18 +74,14 @@ view : Model -> Html Msg
 view model =
   div [ class "anode" ]
     [ div [ class "anode__header" ]
-        [ img [ src "img/anodeyes.svg", width 300 ] []
-        , Html.map Volume (Dial.view model.volume)
-        ]
+        [ img [ src "img/anodeyes.svg", width 300 ] [] ]
     , controlGroup "envelope"
         [ Html.map AmpDecay (Dial.view model.ampDecay)
         , Html.map FilterDecay (Dial.view model.filterDecay)
         , Html.map Sustain (Toggle.view model.sustain)
         ]
     , controlGroup "filter"
-        [ Html.map Cutoff (Dial.view model.cutoff)
-        , Html.map Rez (Dial.view model.rez)
-        ]
+        [ Html.map Cutoff (Dial.view model.cutoff) ]
     , controlGroup "oscilators"
         [ Html.map Wave (Dial.view model.wave)
         , Html.map Detune (Dial.view model.detune)
@@ -107,37 +98,99 @@ view model =
     ]
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Volume msg ->
-      { model | volume = Dial.update msg model.volume }
+    -- Dials
     AmpDecay msg ->
-      { model | ampDecay = Dial.update msg model.ampDecay }
+      let
+        (updated, ccMsg) = updateDial msg model.ampDecay
+      in
+        ( { model | ampDecay = updated }, cc ccMsg )
     FilterDecay msg ->
-      { model | filterDecay = Dial.update msg model.filterDecay }
+      let
+        (updated, ccMsg) = updateDial msg model.filterDecay
+      in
+        ( { model | filterDecay = updated }, cc ccMsg )
     Cutoff msg ->
-      { model | cutoff = Dial.update msg model.cutoff }
-    Rez msg ->
-      { model | rez = Dial.update msg model.rez }
+      let
+        (updated, ccMsg) = updateDial msg model.cutoff
+      in
+        ( { model | cutoff = updated }, cc ccMsg )
     Wave msg ->
-      { model | wave = Dial.update msg model.wave }
+      let
+        (updated, ccMsg) = updateDial msg model.wave
+      in
+        ( { model | wave = updated }, cc ccMsg )
     Detune msg ->
-      { model | detune = Dial.update msg model.detune }
+      let
+        (updated, ccMsg) = updateDial msg model.detune
+      in
+        ( { model | detune = updated }, cc ccMsg )
     Rate msg ->
-      { model | rate = Dial.update msg model.rate }
+      let
+        (updated, ccMsg) = updateDial msg model.rate
+      in
+        ( { model | rate = updated }, cc ccMsg )
     Depth msg ->
-      { model | depth = Dial.update msg model.depth }
+      let
+        (updated, ccMsg) = updateDial msg model.depth
+      in
+        ( { model | depth = updated }, cc ccMsg )
+    -- Toggles
     Sustain msg ->
-      { model | sustain = Toggle.update msg model.sustain }
+      let
+        (updated, ccMsg) = updateToggle msg model.sustain
+      in
+        ( { model | sustain = updated }, cc ccMsg )
     WaveBank msg ->
-      { model | waveBank = Toggle.update msg model.waveBank }
+      let
+        (updated, ccMsg) = updateToggle msg model.waveBank
+      in
+        ( { model | waveBank = updated }, cc ccMsg )
     LFODest msg ->
-      { model | lfoDest = Toggle.update msg model.lfoDest }
+      let
+        (updated, ccMsg) = updateToggle msg model.lfoDest
+      in
+        ( { model | lfoDest = updated }, cc ccMsg )
     Octave msg ->
-      { model | octave = Toggle.update msg model.octave }
+      let
+        (updated, ccMsg) = updateToggle msg model.octave
+      in
+        ( { model | octave = updated }, cc ccMsg )
 
 
+updateDial : Dial.Msg -> Dial.Model -> (Dial.Model, CCMessage)
+updateDial msg model =
+  let
+    updated = Dial.update msg model
+    ccMsg = CCMessage updated.number updated.value
+  in
+    (updated, ccMsg)
+
+
+updateToggle : Toggle.Msg -> Toggle.Model -> (Toggle.Model, CCMessage)
+updateToggle msg model =
+  let
+    updated = Toggle.update msg model
+    value = if updated.value then 127 else 0
+    ccMsg = CCMessage updated.number value
+  in
+    (updated, ccMsg)
+
+
+port cc : CCMessage -> Cmd msg
+
+
+type alias CCMessage = { number: Int , value: Int }
+
+
+main : Program Never
 main =
-  Html.beginnerProgram { model = model, view = view, update = update }
+  Html.program
+    { init = init
+    , view = view
+    , update = update
+    , subscriptions = \_ -> Sub.none
+    }
 

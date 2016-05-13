@@ -9,6 +9,7 @@ type Msg
 
 type alias Model =
   { value : Bool
+  , number : Int
   , label : String
   , leftLabel : String
   , rightLabel : String

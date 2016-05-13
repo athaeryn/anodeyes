@@ -12,6 +12,7 @@ type alias Note = Int
 
 type alias Model =
   { value : Note
+  , number : Int
   , label : String
   }
 

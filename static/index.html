@@ -11,6 +11,12 @@
       // electron is weird
       var Elm = module.exports
       var app = Elm.Anodeyes.fullscreen()
+
+      const ipcRenderer = require('electron').ipcRenderer
+
+      app.ports.cc.subscribe(function (msg) {
+        ipcRenderer.send('asynchronous-message', msg)
+      })
     </script>
   </body>
 </html>

@@ -1,5 +1,5 @@
 const electron = require('electron')
-const { app, BrowserWindow } = electron
+const { app, BrowserWindow, ipcMain } = electron
 
 const midi = require('midi')
 const out = new midi.output()
@@ -44,4 +44,10 @@ function sendCC (number, value) {
   }
   out.sendMessage([176, number, value])
 }
+
+ipcMain.on('asynchronous-message', (event, msg) => {
+  let { number, value } = msg
+  console.log(number, value)
+  sendCC(number, value)
+})
 
