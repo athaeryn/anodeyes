@@ -1,10 +1,16 @@
 {
+  "name": "anodeyes",
+  "main": "main.js",
   "scripts": {
-    "build": "elm make src/Main.elm --output ./static/js/app.js",
-    "watch": "chokidar 'src/**/*.elm' -c 'elm make src/Main.elm --output ./static/js/app.js'"
+    "build": "elm make src/Main.elm --warn --output ./static/js/app.js",
+    "watch": "chokidar 'src/**/*.elm' -c 'elm make src/Main.elm --warn --output ./static/js/app.js'",
+    "start": "electron ."
   },
   "devDependencies": {
     "chokidar-cli": "1.2.0",
     "elm": "0.17.0"
+  },
+  "dependencies": {
+    "electron-prebuilt": "^1.0.2"
   }
 }
