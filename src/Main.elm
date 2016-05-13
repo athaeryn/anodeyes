@@ -103,61 +103,39 @@ update msg model =
   case msg of
     -- Dials
     AmpDecay msg ->
-      let
-        (updated, ccMsg) = updateDial msg model.ampDecay
-      in
-        ( { model | ampDecay = updated }, cc ccMsg )
+      let (updated, ccMsg) = updateDial msg model.ampDecay
+      in ({ model | ampDecay = updated }, cc ccMsg)
     FilterDecay msg ->
-      let
-        (updated, ccMsg) = updateDial msg model.filterDecay
-      in
-        ( { model | filterDecay = updated }, cc ccMsg )
+      let (updated, ccMsg) = updateDial msg model.filterDecay
+      in ({ model | filterDecay = updated }, cc ccMsg)
     Cutoff msg ->
-      let
-        (updated, ccMsg) = updateDial msg model.cutoff
-      in
-        ( { model | cutoff = updated }, cc ccMsg )
+      let (updated, ccMsg) = updateDial msg model.cutoff
+      in ({ model | cutoff = updated }, cc ccMsg)
     Wave msg ->
-      let
-        (updated, ccMsg) = updateDial msg model.wave
-      in
-        ( { model | wave = updated }, cc ccMsg )
+      let (updated, ccMsg) = updateDial msg model.wave
+      in ({ model | wave = updated }, cc ccMsg)
     Detune msg ->
-      let
-        (updated, ccMsg) = updateDial msg model.detune
-      in
-        ( { model | detune = updated }, cc ccMsg )
+      let (updated, ccMsg) = updateDial msg model.detune
+      in ({ model | detune = updated }, cc ccMsg)
     Rate msg ->
-      let
-        (updated, ccMsg) = updateDial msg model.rate
-      in
-        ( { model | rate = updated }, cc ccMsg )
+      let (updated, ccMsg) = updateDial msg model.rate
+      in ({ model | rate = updated }, cc ccMsg)
     Depth msg ->
-      let
-        (updated, ccMsg) = updateDial msg model.depth
-      in
-        ( { model | depth = updated }, cc ccMsg )
+      let (updated, ccMsg) = updateDial msg model.depth
+      in ({ model | depth = updated }, cc ccMsg)
     -- Toggles
     Sustain msg ->
-      let
-        (updated, ccMsg) = updateToggle msg model.sustain
-      in
-        ( { model | sustain = updated }, cc ccMsg )
+      let (updated, ccMsg) = updateToggle msg model.sustain
+      in ({ model | sustain = updated }, cc ccMsg)
     WaveBank msg ->
-      let
-        (updated, ccMsg) = updateToggle msg model.waveBank
-      in
-        ( { model | waveBank = updated }, cc ccMsg )
+      let (updated, ccMsg) = updateToggle msg model.waveBank
+      in ({ model | waveBank = updated }, cc ccMsg)
     LFODest msg ->
-      let
-        (updated, ccMsg) = updateToggle msg model.lfoDest
-      in
-        ( { model | lfoDest = updated }, cc ccMsg )
+      let (updated, ccMsg) = updateToggle msg model.lfoDest
+      in ({ model | lfoDest = updated }, cc ccMsg)
     Octave msg ->
-      let
-        (updated, ccMsg) = updateToggle msg model.octave
-      in
-        ( { model | octave = updated }, cc ccMsg )
+      let (updated, ccMsg) = updateToggle msg model.octave
+      in ({ model | octave = updated }, cc ccMsg)
 
 
 updateDial : Dial.Msg -> Dial.Model -> (Dial.Model, CCMessage)
