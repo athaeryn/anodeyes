@@ -8,20 +8,18 @@ import String
 import Result
 import Maybe
 
-type alias Note = Int
-
 type alias Model =
-  { value : Note
+  { value : Int
   , number : Int
   , label : String
   }
 
 type Msg
   = Reset
-  | SetValue Note
+  | SetValue Int
 
 
-eventValueToNote : String -> Note
+eventValueToNote : String -> Int
 eventValueToNote value =
   String.toInt value
     |> Result.toMaybe

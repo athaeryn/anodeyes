@@ -1,3 +1,5 @@
+*, *:before, *:after { box-sizing: border-box; }
+
 html,
 body {
   height: 100%;
@@ -26,10 +28,20 @@ body {
   box-shadow: 0 8px 40px -10px black;
 }
 
-.anode__header {
-  height: 70px;
-  margin-top: -10px;
-  text-align: right;
+.preset-name {
+  display: block;
+  width: 100%;
+  margin-bottom: 30px;
+  padding: 10px;
+
+  font-family: sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.1rem;
+  text-align: center;
+  text-transform: uppercase;
+
+  background: #ccc;
+  border: none;
 }
 
 .logo {
@@ -77,7 +89,7 @@ body {
 }
 
 .control__dial {
-  width: 80px;
+  /* width: 80px; */
 }
 
 .control__dial,

@@ -2,15 +2,18 @@ module Preset exposing (Model, Msg, initialModel, update, view)
 
 import Html exposing (..)
 import Html.App as Html
+import Html.Events exposing (onInput)
 import Html.Attributes exposing (..)
 
 import Dial
 import Toggle
+import Types exposing (CCMessage)
 
 
 type Msg
+  = Rename String
   -- Dials
-  = AmpAttack Dial.Msg
+  | AmpAttack Dial.Msg
   | AmpDecay Dial.Msg
   | FilterAttack Dial.Msg
   | FilterDecay Dial.Msg
@@ -32,7 +35,8 @@ type Msg
 
 
 type alias Model =
-  { ampAttack : Dial.Model
+  { name : String
+  , ampAttack : Dial.Model
   , ampDecay : Dial.Model
   , filterAttack : Dial.Model
   , filterDecay : Dial.Model
@@ -55,7 +59,8 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-  { ampAttack = Dial.Model 0 57 "amp attack"
+  { name = "untitled"
+  , ampAttack = Dial.Model 0 57 "amp attack"
   , ampDecay = Dial.Model 0 54 "amp decay"
   , filterAttack = Dial.Model 0 58 "filter attack"
   , filterDecay = Dial.Model 0 53 "filter decay"
@@ -87,7 +92,8 @@ controlGroup label html =
 view : Model -> Html Msg
 view model =
   div [ class "anode" ]
-    [ controlGroup "envelope"
+    [ input [ class "preset-name", onInput Rename, value model.name ] []
+    , controlGroup "envelope"
         [ Html.map AmpAttack (Dial.view model.ampAttack)
         , Html.map AmpDecay (Dial.view model.ampDecay)
         , Html.map FilterAttack (Dial.view model.filterAttack)
@@ -117,14 +123,16 @@ view model =
     ]
 
 
-makeCC : { a | number : Int, value : Int } -> { number : Int, value : Int }
+makeCC : { a | number : Int, value : Int } -> Maybe CCMessage
 makeCC { number, value } =
-  { number = number, value = value }
+  Just { number = number, value = value }
 
 
-update : Msg -> Model -> (Model, { number : Int, value : Int })
+update : Msg -> Model -> (Model, Maybe CCMessage)
 update msg model =
   case msg of
+    Rename name ->
+      ({ model | name = name }, Nothing)
     -- Dials
     AmpAttack msg ->
       let updated = Dial.update msg model.ampAttack

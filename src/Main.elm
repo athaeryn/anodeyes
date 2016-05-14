@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.App as Html
 
 import Preset
+import Types exposing (CCMessage)
 
 
 type Msg
@@ -31,11 +32,14 @@ update msg model =
     PresetUpdate msg ->
       let
         (updated, ccMessage) = Preset.update msg model.preset
+        cmd = case ccMessage of
+          Just message -> cc message
+          Nothing -> Cmd.none
       in
-        ({ model | preset = updated }, cc ccMessage)
+        ({ model | preset = updated }, cmd)
 
 
-port cc : { number : Int, value : Int } -> Cmd msg
+port cc : CCMessage -> Cmd msg
 
 
 main : Program Never
