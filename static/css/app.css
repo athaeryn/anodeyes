@@ -9,9 +9,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  /* global text styles */
   font-family: sans-serif;
-  font-weight: bold;
-  font-size: .8rem;
+  font-size: .6rem;
+  text-transform: uppercase;
 }
 
 .anode {
@@ -24,10 +26,13 @@ body {
 }
 
 .anode__header {
-  display: flex;
-  justify-content: space-around;
-  height: 90px;
-  margin-bottom: 30px;
+  height: 70px;
+  margin-top: -10px;
+  text-align: right;
+}
+
+.logo {
+  width: 200px;
 }
 
 .control-group {
@@ -36,10 +41,9 @@ body {
 }
 
 .control-group__label {
-  background: #565656;
+  border: 1px solid #565656;
   color: #e7e7e7;
   text-align: center;
-  text-transform: uppercase;
   padding: .4rem;
 }
 
@@ -67,8 +71,11 @@ body {
 }
 
 .control__label {
-  margin-top: 15px;
-  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.control__dial {
+  width: 80px;
 }
 
 .control__dial,
