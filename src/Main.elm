@@ -91,9 +91,7 @@ controlGroup label html =
 view : Model -> Html Msg
 view model =
   div [ class "anode" ]
-    [ div [ class "anode__header" ]
-        [ img [ src "img/anodeyes.svg", class "logo" ] [] ]
-    , controlGroup "envelope"
+    [ controlGroup "envelope"
         [ Html.map AmpAttack (Dial.view model.ampAttack)
         , Html.map AmpDecay (Dial.view model.ampDecay)
         , Html.map FilterAttack (Dial.view model.filterAttack)
