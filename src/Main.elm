@@ -7,39 +7,59 @@ import Preset
 import Types exposing (CCMessage)
 
 
+type alias ID = Int
+
+
 type Msg
-  = PresetUpdate Preset.Msg
+  = PresetUpdate ID Preset.Msg
 
 
 type alias Model =
-  { preset : Preset.Model
+  { presets : List (ID, Preset.Model)
   }
 
 
 init : (Model, Cmd Msg)
 init =
-  ({ preset = Preset.initialModel }, Cmd.none)
+  ({ presets = [(0, Preset.initialModel)] }, Cmd.none)
 
 
 view : Model -> Html Msg
 view model =
-  div [] [ Html.map PresetUpdate (Preset.view model.preset) ]
+  let
+    showPreset (id, preset) =
+      Html.map (PresetUpdate id) (Preset.view preset)
+  in
+    div [] (List.map showPreset model.presets)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    PresetUpdate msg ->
+    PresetUpdate id msg ->
       let
-        (updated, ccMessage) = Preset.update msg model.preset
-        cmd = case ccMessage of
-          Just message -> cc message
-          Nothing -> Cmd.none
+        updatePreset (presetId, presetModel) list =
+          let
+            (preset, ccMessage) = if presetId == id then
+                                    Preset.update msg presetModel
+                                  else
+                                    (presetModel, Nothing)
+            cmd = case ccMessage of
+              Just message -> cc [message]
+              Nothing -> Cmd.none
+          in
+            (presetId, preset, cmd) :: list
+        presetsAndCmds = List.foldl updatePreset [] model.presets
+        presets = List.map (\(pId, pModel, _) -> (pId, pModel)) presetsAndCmds
+        cmds =
+          List.filter
+            (\cmd -> cmd /= Cmd.none)
+            (List.map (\(_, _, cmd) -> cmd) presetsAndCmds)
       in
-        ({ model | preset = updated }, cmd)
+        ({ model | presets = presets }, Cmd.none)
 
 
-port cc : CCMessage -> Cmd msg
+port cc : List CCMessage -> Cmd msg
 
 
 main : Program Never
