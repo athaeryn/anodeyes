@@ -31,16 +31,9 @@ app.on('activate', () => {
   }
 })
 
-function sendCC (number, value) {
-  if (typeof value === 'boolean') {
-    value = value ? 127 : 0
-  }
-  out.sendMessage([176, number, value])
-}
-
 ipcMain.on('asynchronous-message', (event, msg) => {
-  let { number, value } = msg
+  const { number, value } = msg
   console.log(number, value)
-  sendCC(number, value)
+  out.sendMessage([176, number, value])
 })
 

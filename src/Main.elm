@@ -189,7 +189,7 @@ port cc : { number : Int, value : Int } -> Cmd msg
 
 sendCC : { a | number : Int, value : Int } -> Cmd msg
 sendCC { number, value } =
-  cc {number = number, value = value }
+  cc { number = number, value = value }
 
 
 main : Program Never
