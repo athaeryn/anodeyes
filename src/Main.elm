@@ -27,10 +27,10 @@ init =
 view : Model -> Html Msg
 view model =
   let
-    showPreset (id, preset) =
+    presetView (id, preset) =
       Html.map (PresetUpdate id) (Preset.view preset)
   in
-    div [] (List.map showPreset model.presets)
+    div [] (List.map presetView model.presets)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
