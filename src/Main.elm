@@ -38,7 +38,7 @@ update msg model =
   case msg of
     PresetUpdate id msg ->
       let
-        updatePreset (presetId, presetModel) list =
+        updatePreset (presetId, presetModel) =
           let
             (preset, ccMessage) = if presetId == id then
                                     Preset.update msg presetModel
@@ -48,15 +48,10 @@ update msg model =
               Just message -> cc [message]
               Nothing -> Cmd.none
           in
-            (presetId, preset, cmd) :: list
-        presetsAndCmds = List.foldl updatePreset [] model.presets
-        presets = List.map (\(pId, pModel, _) -> (pId, pModel)) presetsAndCmds
-        cmds =
-          List.filter
-            (\cmd -> cmd /= Cmd.none)
-            (List.map (\(_, _, cmd) -> cmd) presetsAndCmds)
+            ((presetId, preset), cmd)
+        (presets, cmds) = List.unzip (List.map updatePreset model.presets)
       in
-        ({ model | presets = presets }, Cmd.none)
+        ({ model | presets = presets }, Cmd.batch cmds)
 
 
 port cc : List CCMessage -> Cmd msg
