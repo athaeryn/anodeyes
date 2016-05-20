@@ -2,6 +2,8 @@ port module Anodeyes exposing (..)
 
 import Html exposing (..)
 import Html.App as Html
+import Html.Events exposing (onInput)
+import Html.Attributes as H exposing (..)
 import Preset
 import Types exposing (CCMessage)
 
@@ -19,6 +21,7 @@ type alias NamedPreset =
 
 type Msg
     = PresetUpdate ID Preset.Msg
+    | PresetRename ID String
 
 
 type alias Model =
@@ -32,8 +35,11 @@ init =
 
 
 presetView : NamedPreset -> Html Msg
-presetView { id, settings } =
-    Html.map (PresetUpdate id) (Preset.view settings)
+presetView { id, name, settings } =
+    div []
+        [ input [ class "preset-name", onInput (PresetRename id), H.value name ] []
+        , Html.map (PresetUpdate id) (Preset.view settings)
+        ]
 
 
 view : Model -> Html Msg
@@ -66,6 +72,16 @@ update msg model =
                         |> List.unzip
             in
                 { model | presets = presets } ! cmds
+
+        PresetRename id name ->
+            let
+                rename preset =
+                    if preset.id == id then
+                        { preset | name = name }
+                    else
+                        preset
+            in
+                ( { model | presets = (List.map rename model.presets) }, Cmd.none )
 
 
 port cc : List CCMessage -> Cmd msg
