@@ -49,6 +49,7 @@ view model =
         ]
 
 
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         SetValue val ->
