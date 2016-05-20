@@ -8,7 +8,7 @@ import Types exposing (CCMessage)
 
 
 type alias ID = Int
-
+type alias PresetWithID = (ID, Preset.Model)
 
 type Msg
   = PresetUpdate ID Preset.Msg
@@ -27,10 +27,25 @@ init =
 view : Model -> Html Msg
 view model =
   let
+    presetView : PresetWithID -> Html Msg
     presetView (id, preset) =
       Html.map (PresetUpdate id) (Preset.view preset)
   in
     div [] (List.map presetView model.presets)
+
+
+updatePresetWithID : ID -> Preset.Msg -> PresetWithID -> (PresetWithID, Cmd Msg)
+updatePresetWithID id msg (presetId, presetModel) =
+  if presetId == id then
+    let
+      (updated, ccMsg) = Preset.update msg presetModel
+      cmd = case ccMsg of
+        Just message -> cc [message]
+        Nothing -> Cmd.none
+    in
+      ((presetId, updated), cmd)
+  else
+    ((presetId, presetModel), Cmd.none)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -38,20 +53,12 @@ update msg model =
   case msg of
     PresetUpdate id msg ->
       let
-        updatePreset (presetId, presetModel) =
-          let
-            (preset, ccMessage) = if presetId == id then
-                                    Preset.update msg presetModel
-                                  else
-                                    (presetModel, Nothing)
-            cmd = case ccMessage of
-              Just message -> cc [message]
-              Nothing -> Cmd.none
-          in
-            ((presetId, preset), cmd)
-        (presets, cmds) = List.unzip (List.map updatePreset model.presets)
+        (presets, cmds) =
+          model.presets
+          |> List.map (updatePresetWithID id msg)
+          |> List.unzip
       in
-        ({ model | presets = presets }, Cmd.batch cmds)
+        { model | presets = presets } ! cmds
 
 
 port cc : List CCMessage -> Cmd msg
