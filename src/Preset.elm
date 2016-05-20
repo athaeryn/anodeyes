@@ -2,17 +2,16 @@ module Preset exposing (Model, Msg, initialModel, update, view)
 
 import Html exposing (..)
 import Html.App as Html
-import Html.Events exposing (onInput)
 import Html.Attributes exposing (..)
 import Dial
 import Toggle
 import Types exposing (CCMessage)
 
 
-type Msg
-    = Rename String
-      -- Dials
-    | AmpAttack Dial.Msg
+type
+    Msg
+    -- Dials
+    = AmpAttack Dial.Msg
     | AmpDecay Dial.Msg
     | FilterAttack Dial.Msg
     | FilterDecay Dial.Msg
@@ -34,8 +33,7 @@ type Msg
 
 
 type alias Model =
-    { name : String
-    , ampAttack : Dial.Model
+    { ampAttack : Dial.Model
     , ampDecay : Dial.Model
     , filterAttack : Dial.Model
     , filterDecay : Dial.Model
@@ -58,8 +56,7 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-    { name = "untitled"
-    , ampAttack = Dial.Model 0 57 "amp attack"
+    { ampAttack = Dial.Model 0 57 "amp attack"
     , ampDecay = Dial.Model 0 54 "amp decay"
     , filterAttack = Dial.Model 0 58 "filter attack"
     , filterDecay = Dial.Model 0 53 "filter decay"
@@ -91,8 +88,7 @@ controlGroup label html =
 view : Model -> Html Msg
 view model =
     div [ class "anode" ]
-        [ input [ class "preset-name", onInput Rename, value model.name ] []
-        , controlGroup "envelope"
+        [ controlGroup "envelope"
             [ Html.map AmpAttack (Dial.view model.ampAttack)
             , Html.map AmpDecay (Dial.view model.ampDecay)
             , Html.map FilterAttack (Dial.view model.filterAttack)
@@ -122,17 +118,14 @@ view model =
         ]
 
 
-makeCC : { a | number : Int, value : Int } -> Maybe CCMessage
+makeCC : { a | number : Int, value : Int } -> CCMessage
 makeCC { number, value } =
-    Just { number = number, value = value }
+    { number = number, value = value }
 
 
-update : Msg -> Model -> ( Model, Maybe CCMessage )
+update : Msg -> Model -> ( Model, CCMessage )
 update msg model =
     case msg of
-        Rename name ->
-            ( { model | name = name }, Nothing )
-
         -- Dials
         AmpAttack msg ->
             let

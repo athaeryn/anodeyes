@@ -10,8 +10,11 @@ type alias ID =
     Int
 
 
-type alias PresetWithID =
-    ( ID, Preset.Model )
+type alias NamedPreset =
+    { id : ID
+    , name : String
+    , settings : Preset.Model
+    }
 
 
 type Msg
@@ -19,43 +22,37 @@ type Msg
 
 
 type alias Model =
-    { presets : List ( ID, Preset.Model )
+    { presets : List NamedPreset
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { presets = [ ( 0, Preset.initialModel ) ] }, Cmd.none )
+    ( { presets = [ NamedPreset 0 "untitled" Preset.initialModel ] }, Cmd.none )
+
+
+presetView : NamedPreset -> Html Msg
+presetView { id, settings } =
+    Html.map (PresetUpdate id) (Preset.view settings)
 
 
 view : Model -> Html Msg
 view model =
-    let
-        presetView : PresetWithID -> Html Msg
-        presetView ( id, preset ) =
-            Html.map (PresetUpdate id) (Preset.view preset)
-    in
-        div [] (List.map presetView model.presets)
+    model.presets
+        |> List.map presetView
+        |> div []
 
 
-updatePresetWithID : ID -> Preset.Msg -> PresetWithID -> ( PresetWithID, Cmd Msg )
-updatePresetWithID id msg ( presetId, presetModel ) =
-    if presetId == id then
+updatePresetWithID : ID -> Preset.Msg -> NamedPreset -> ( NamedPreset, Cmd Msg )
+updatePresetWithID id msg preset =
+    if preset.id == id then
         let
             ( updated, ccMsg ) =
-                Preset.update msg presetModel
-
-            cmd =
-                case ccMsg of
-                    Just message ->
-                        cc [ message ]
-
-                    Nothing ->
-                        Cmd.none
+                Preset.update msg preset.settings
         in
-            ( ( presetId, updated ), cmd )
+            ( { preset | settings = updated }, cc [ ccMsg ] )
     else
-        ( ( presetId, presetModel ), Cmd.none )
+        ( preset, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
