@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for f in $( find src -name '*.elm' ); do
+  elm-format --yes "$f"
+done

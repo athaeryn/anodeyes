@@ -4,6 +4,7 @@
   "scripts": {
     "build": "elm make src/Main.elm --warn --output ./static/js/app.js",
     "watch": "chokidar 'src/**/*.elm' -c 'elm make src/Main.elm --warn --output ./static/js/app.js'",
+    "format": "scripts/format",
     "start": "electron ."
   },
   "devDependencies": {
