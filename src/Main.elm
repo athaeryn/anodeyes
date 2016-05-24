@@ -2,7 +2,6 @@ port module Anodeyes exposing (..)
 
 import Html exposing (..)
 import Html.App as Html
-import Html.Events exposing (onInput)
 import Html.Attributes as H exposing (..)
 import Preset
 import Types exposing (CCMessage)
@@ -29,24 +28,42 @@ type alias Model =
     }
 
 
+model : Model
+model =
+    { presets = [ NamedPreset 0 "untitled" Preset.initialModel ] }
+
+
 init : ( Model, Cmd Msg )
 init =
-    ( { presets = [ NamedPreset 0 "untitled" Preset.initialModel ] }, Cmd.none )
+    ( model, Cmd.none )
 
 
 presetView : NamedPreset -> Html Msg
-presetView { id, name, settings } =
-    div []
-        [ input [ class "preset-name", onInput (PresetRename id), H.value name ] []
-        , Html.map (PresetUpdate id) (Preset.view settings)
+presetView { id, settings } =
+    Html.map (PresetUpdate id) (Preset.view settings)
+
+
+presetListView : List NamedPreset -> Html Msg
+presetListView presets =
+    div [ class "list-container" ]
+        [ img [ src "img/anodeyes.svg", class "logo" ] []
+        , ul []
+            [ presets
+                |> List.map (\p -> p.name)
+                |> List.map text
+                |> li []
+            ]
         ]
 
 
 view : Model -> Html Msg
 view model =
-    model.presets
-        |> List.map presetView
-        |> div []
+    div [ class "outer" ]
+        [ presetListView model.presets
+        , model.presets
+            |> List.map presetView
+            |> div [ class "anode-container" ]
+        ]
 
 
 updatePresetWithID : ID -> Preset.Msg -> NamedPreset -> ( NamedPreset, Cmd Msg )

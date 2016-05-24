@@ -8,15 +8,55 @@ body {
 
 body {
   background: #e7e7e7;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
   /* global text styles */
   font-family: sans-serif;
   font-size: .6rem;
   text-transform: uppercase;
+}
+
+body,
+.app-container {
+  flex-direction: column;
+}
+
+body,
+.app-container,
+.outer {
+  display: flex;
+  flex: 1;
+}
+
+.list-container {
+  background: #ddd;
+  display: flex;
+  flex-direction: column;
+}
+
+.list-container > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+}
+.list-container > ul > li {
+  padding: 20px;
+  border-top: 1px solid #bbb;
+}
+.list-container > ul > li:hover {
+  cursor: pointer;
+  background: #eee;
+  transition: background 200ms ease-out;
+}
+.list-container > ul > li:last-child {
+  border-bottom: 1px solid #bbb;
+}
+
+.anode-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .anode {
@@ -46,7 +86,8 @@ body {
 
 .logo {
   width: 200px;
-  margin-bottom: 20px;
+  margin: 20px;
+  align-self: center;
 }
 
 .control-group {
