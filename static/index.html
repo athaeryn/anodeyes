@@ -10,17 +10,17 @@
     <div id="app" class="app-container"></div>
     <script>
       // electron is weird
-      var isElectron = typeof require != 'undefined'
+      const isElectron = typeof require != 'undefined'
       if (isElectron) {
         self.Elm = module.exports
       }
 
-      var app = Elm.Anodeyes.embed(document.querySelector('#app'))
+      const app = Elm.Anodeyes.embed(document.querySelector('#app'))
 
       if (isElectron) {
         const ipcRenderer = require('electron').ipcRenderer
-        app.ports.cc.subscribe(function (msg) {
-          ipcRenderer.send('asynchronous-message', msg)
+        app.ports.cc.subscribe(function (messages) {
+          ipcRenderer.send('asynchronous-message', messages)
         })
       }
     </script>

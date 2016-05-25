@@ -31,9 +31,11 @@ app.on('activate', () => {
   }
 })
 
-ipcMain.on('asynchronous-message', (event, msg) => {
-  const { number, value } = msg
-  console.log(number, value)
-  out.sendMessage([176, number, value])
+ipcMain.on('asynchronous-message', (event, messages) => {
+  for (let i = 0; i < messages.length; i += 1) {
+    const { number, value } = messages[i]
+    console.log(number, value)
+    out.sendMessage([176, number, value])
+  }
 })
 
