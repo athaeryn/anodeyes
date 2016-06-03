@@ -8,27 +8,38 @@ import Types exposing (CCMessage)
 import Dict
 
 
-type alias ID =
+type alias Id =
     Int
 
 
+type alias Name =
+    String
+
+
+type alias NamedPreset =
+    ( Name, Preset.Model )
+
+
 type alias PresetCollection =
-    Dict.Dict String Preset.Model
+    Dict.Dict Id NamedPreset
 
 
 type Msg
-    = PresetUpdate String Preset.Msg
-    | PresetRename String String
+    = PresetUpdate Id Preset.Msg
+    | PresetRename Id Name
 
 
 type alias Model =
     { presets : PresetCollection
+    , nextId : Int
     }
 
 
 model : Model
 model =
-    { presets = Dict.fromList [("untitled", Preset.initialModel )] }
+    { presets = Dict.fromList [( 0, ("untitled", Preset.initialModel ) )]
+    , nextId = 1
+    }
 
 
 init : ( Model, Cmd Msg )
@@ -36,9 +47,10 @@ init =
     ( model, Cmd.none )
 
 
-presetView : (String, Preset.Model) -> Html Msg
+presetView : (Name, Preset.Model) -> Html Msg
 presetView (name, preset) =
-    Html.map (PresetUpdate name) (Preset.view preset)
+    -- FIXME get an actual id
+    Html.map (PresetUpdate 0) (Preset.view preset)
 
 
 presetListView : PresetCollection -> Html Msg
@@ -48,6 +60,8 @@ presetListView presets =
         , ul []
             [ presets
                 |> Dict.toList
+                |> List.unzip
+                |> snd
                 |> List.map (\(name, p) -> name)
                 |> List.map text
                 |> li []
@@ -61,6 +75,8 @@ view model =
         [ presetListView model.presets
         , model.presets
             |> Dict.toList
+            |> List.unzip
+            |> snd
             |> List.map presetView
             |> div [ class "anode-container" ]
         ]
@@ -69,31 +85,39 @@ view model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        PresetUpdate name msg ->
+        PresetUpdate id msg ->
             let
                 preset =
-                    Dict.get name model.presets
+                    Dict.get id model.presets
+                name =
+                    Dict.get id model.presets
+                    |> Maybe.map fst
+                    |> Maybe.withDefault "untitled"
                 ( updated, cmd ) =
                     preset
+                    |> Maybe.map snd
                     |> Maybe.map ( Preset.update msg )
                     |> Maybe.map (\(p, ccMsg) -> (p, cc [ccMsg]))
                     |> Maybe.withDefault ( Preset.initialModel, Cmd.none )
                 presets =
-                    Dict.insert name updated model.presets
+                    Dict.insert id (name, updated) model.presets
             in
                 ( { model | presets = presets }, cmd )
 
 
-        PresetRename name newName ->
+        PresetRename id name ->
             let
+                preset : NamedPreset
                 preset =
                     model.presets
-                    |> Dict.get name
-                    |> Maybe.withDefault Preset.initialModel
+                    |> Dict.get id
+                    |> Maybe.withDefault ( "untitled", Preset.initialModel )
+
+                updatedPresets : PresetCollection
                 updatedPresets =
                     model.presets
-                    |> Dict.remove name
-                    |> Dict.insert newName preset
+                    |> Dict.remove id
+                    |> Dict.insert id preset
             in
                 ( { model | presets = updatedPresets }, Cmd.none )
 
