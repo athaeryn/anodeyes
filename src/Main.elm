@@ -5,32 +5,30 @@ import Html.App as Html
 import Html.Attributes as H exposing (..)
 import Preset
 import Types exposing (CCMessage)
+import Dict
 
 
 type alias ID =
     Int
 
 
-type alias NamedPreset =
-    { id : ID
-    , name : String
-    , settings : Preset.Model
-    }
+type alias PresetCollection =
+    Dict.Dict String Preset.Model
 
 
 type Msg
-    = PresetUpdate ID Preset.Msg
-    | PresetRename ID String
+    = PresetUpdate String Preset.Msg
+    | PresetRename String String
 
 
 type alias Model =
-    { presets : List NamedPreset
+    { presets : PresetCollection
     }
 
 
 model : Model
 model =
-    { presets = [ NamedPreset 0 "untitled" Preset.initialModel ] }
+    { presets = Dict.fromList [("untitled", Preset.initialModel )] }
 
 
 init : ( Model, Cmd Msg )
@@ -38,18 +36,19 @@ init =
     ( model, Cmd.none )
 
 
-presetView : NamedPreset -> Html Msg
-presetView { id, settings } =
-    Html.map (PresetUpdate id) (Preset.view settings)
+presetView : (String, Preset.Model) -> Html Msg
+presetView (name, preset) =
+    Html.map (PresetUpdate name) (Preset.view preset)
 
 
-presetListView : List NamedPreset -> Html Msg
+presetListView : PresetCollection -> Html Msg
 presetListView presets =
     div [ class "list-container" ]
         [ img [ src "img/anodeyes.svg", class "logo" ] []
         , ul []
             [ presets
-                |> List.map (\p -> p.name)
+                |> Dict.toList
+                |> List.map (\(name, p) -> name)
                 |> List.map text
                 |> li []
             ]
@@ -61,47 +60,48 @@ view model =
     div [ class "outer" ]
         [ presetListView model.presets
         , model.presets
+            |> Dict.toList
             |> List.map presetView
             |> div [ class "anode-container" ]
         ]
 
 
-updatePresetWithID : ID -> Preset.Msg -> NamedPreset -> ( NamedPreset, Cmd Msg )
-updatePresetWithID id msg preset =
-    if preset.id == id then
-        let
-            ( updated, ccMsg ) =
-                Preset.update msg preset.settings
-        in
-            ( { preset | settings = updated }, cc [ ccMsg ] )
-    else
-        ( preset, Cmd.none )
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        PresetUpdate id msg ->
+        PresetUpdate name msg ->
             let
-                ( presets, cmds ) =
-                    model.presets
-                        |> List.map (updatePresetWithID id msg)
-                        |> List.unzip
+                preset =
+                    Dict.get name model.presets
+                ( updated, cmd ) =
+                    preset
+                    |> Maybe.map ( Preset.update msg )
+                    |> Maybe.map (\(p, ccMsg) -> (p, cc [ccMsg]))
+                    |> Maybe.withDefault ( Preset.initialModel, Cmd.none )
+                presets =
+                    Dict.insert name updated model.presets
             in
-                { model | presets = presets } ! cmds
+                ( { model | presets = presets }, cmd )
 
-        PresetRename id name ->
+
+        PresetRename name newName ->
             let
-                rename preset =
-                    if preset.id == id then
-                        { preset | name = name }
-                    else
-                        preset
+                preset =
+                    model.presets
+                    |> Dict.get name
+                    |> Maybe.withDefault Preset.initialModel
+                updatedPresets =
+                    model.presets
+                    |> Dict.remove name
+                    |> Dict.insert newName preset
             in
-                ( { model | presets = (List.map rename model.presets) }, Cmd.none )
+                ( { model | presets = updatedPresets }, Cmd.none )
 
 
 port cc : List CCMessage -> Cmd msg
+
+
+-- port loadPresets : ({presets : List (String, Preset.Model)} -> msg) -> Sub msg
 
 
 main : Program Never
