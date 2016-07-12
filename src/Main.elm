@@ -140,13 +140,13 @@ update msg model =
                     model.nextId + 1
 
                 newPreset =
-                    -- FIXME use model.activeId when that's available
-                    Dict.get (model.nextId - 1) model.presets
+                    Dict.get (model.activeId) model.presets
                         |> Maybe.withDefault ( "untitled", Preset.initialModel )
 
                 newModel =
                     { model
-                        | nextId = nextId
+                        | activeId = model.nextId
+                        , nextId = nextId
                         , presets = Dict.insert model.nextId newPreset model.presets
                     }
             in
