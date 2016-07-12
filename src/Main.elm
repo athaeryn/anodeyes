@@ -3,6 +3,7 @@ port module Anodeyes exposing (..)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes as H exposing (..)
+import Html.Events exposing (..)
 import Preset
 import Types exposing (CCMessage)
 import Dict
@@ -27,10 +28,13 @@ type alias PresetCollection =
 type Msg
     = PresetUpdate Id Preset.Msg
     | PresetRename Id Name
+    | CreatePreset
+    | ActivatePreset Id
 
 
 type alias Model =
     { presets : PresetCollection
+    , activeId : Int
     , nextId : Int
     }
 
@@ -38,6 +42,7 @@ type alias Model =
 model : Model
 model =
     { presets = Dict.fromList [( 0, ("untitled", Preset.initialModel ) )]
+    , activeId = 0
     , nextId = 1
     }
 
@@ -47,36 +52,44 @@ init =
     ( model, Cmd.none )
 
 
-presetView : (Name, Preset.Model) -> Html Msg
-presetView (name, preset) =
-    -- FIXME get an actual id
-    Html.map (PresetUpdate 0) (Preset.view preset)
+presetView : (Id, NamedPreset) -> Html Msg
+presetView (id, (name, preset)) =
+    Html.map (PresetUpdate id) (Preset.view preset)
 
 
-presetListView : PresetCollection -> Html Msg
-presetListView presets =
-    div [ class "list-container" ]
-        [ img [ src "img/anodeyes.svg", class "logo" ] []
-        , ul []
-            [ presets
-                |> Dict.toList
-                |> List.unzip
-                |> snd
-                |> List.map (\(name, p) -> name)
-                |> List.map text
-                |> li []
-            ]
+presetListItemView : Id -> (Id, NamedPreset) -> Html Msg
+presetListItemView activeId (id, (name, preset)) =
+    li
+        [ class (if id == activeId then "active" else "")
+        , onClick (ActivatePreset id)
         ]
+        [ text name ]
+
+
+presetListView : PresetCollection -> Id -> Html Msg
+presetListView presets activeId =
+    let
+        presetItems =
+            presets
+                |> Dict.toList
+                |> List.map (presetListItemView activeId)
+    in
+        div [ class "list-container" ]
+            [ img [ src "img/anodeyes.svg", class "logo" ] []
+            , ul [] presetItems
+            , div []
+                [ button [ onClick CreatePreset ] [ text "add new" ]
+                ]
+            ]
 
 
 view : Model -> Html Msg
 view model =
     div [ class "outer" ]
-        [ presetListView model.presets
+        [ (presetListView model.presets model.activeId)
         , model.presets
             |> Dict.toList
-            |> List.unzip
-            |> snd
+            |> List.filter (\(id, p) -> id == model.activeId)
             |> List.map presetView
             |> div [ class "anode-container" ]
         ]
@@ -91,14 +104,14 @@ update msg model =
                     Dict.get id model.presets
                 name =
                     Dict.get id model.presets
-                    |> Maybe.map fst
-                    |> Maybe.withDefault "untitled"
+                        |> Maybe.map fst
+                        |> Maybe.withDefault "untitled"
                 ( updated, cmd ) =
                     preset
-                    |> Maybe.map snd
-                    |> Maybe.map ( Preset.update msg )
-                    |> Maybe.map (\(p, ccMsg) -> (p, cc [ccMsg]))
-                    |> Maybe.withDefault ( Preset.initialModel, Cmd.none )
+                        |> Maybe.map snd
+                        |> Maybe.map ( Preset.update msg )
+                        |> Maybe.map (\(p, ccMsg) -> (p, cc [ccMsg]))
+                        |> Maybe.withDefault ( Preset.initialModel, Cmd.none )
                 presets =
                     Dict.insert id (name, updated) model.presets
             in
@@ -110,16 +123,39 @@ update msg model =
                 preset : NamedPreset
                 preset =
                     model.presets
-                    |> Dict.get id
-                    |> Maybe.withDefault ( "untitled", Preset.initialModel )
+                        |> Dict.get id
+                        |> Maybe.withDefault ( "untitled", Preset.initialModel )
 
                 updatedPresets : PresetCollection
                 updatedPresets =
                     model.presets
-                    |> Dict.remove id
-                    |> Dict.insert id preset
+                        |> Dict.remove id
+                        |> Dict.insert id preset
             in
                 ( { model | presets = updatedPresets }, Cmd.none )
+
+        CreatePreset ->
+            let
+                nextId =
+                    model.nextId + 1
+
+                newPreset =
+                    -- FIXME use model.activeId when that's available
+                    Dict.get (model.nextId - 1) model.presets
+                        |> Maybe.withDefault ( "untitled", Preset.initialModel )
+
+                newModel =
+                    { model
+                        | nextId = nextId
+                        , presets = Dict.insert model.nextId newPreset model.presets
+                    }
+            in
+               ( newModel, Cmd.none )
+
+        ActivatePreset id ->
+            -- FIXME: send the whole preset over MIDI
+            ({ model | activeId = id }, Cmd.none)
+
 
 
 port cc : List CCMessage -> Cmd msg

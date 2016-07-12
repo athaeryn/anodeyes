@@ -42,6 +42,9 @@ body,
   padding: 20px;
   border-top: 1px solid #bbb;
 }
+.list-container > ul > li.active {
+  background: white;
+}
 .list-container > ul > li:hover {
   cursor: pointer;
   background: #eee;
@@ -49,6 +52,26 @@ body,
 }
 .list-container > ul > li:last-child {
   border-bottom: 1px solid #bbb;
+}
+
+.list-container button {
+  background: #333;
+  border: none;
+  border-radius: 2px;
+  color: #ddd;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 1rem;
+  margin: 2rem;
+  padding: 1rem;
+  text-transform: uppercase;
+  width: calc(100% - 4rem);
+}
+.list-container button:hover {
+  background: #3e3d3d;
+}
+.list-container button:active {
+  transform: scale(0.9);
 }
 
 .anode-container {
