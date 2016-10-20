@@ -41,7 +41,7 @@ type alias Model =
 
 model : Model
 model =
-    { presets = Dict.fromList [( 0, ("untitled", Preset.initialModel ) )]
+    { presets = Dict.fromList [ ( 0, ( "untitled", Preset.initialModel ) ) ]
     , activeId = 0
     , nextId = 1
     }
@@ -52,15 +52,20 @@ init =
     ( model, Cmd.none )
 
 
-presetView : (Id, NamedPreset) -> Html Msg
-presetView (id, (name, preset)) =
+presetView : ( Id, NamedPreset ) -> Html Msg
+presetView ( id, ( name, preset ) ) =
     Html.map (PresetUpdate id) (Preset.view preset)
 
 
-presetListItemView : Id -> (Id, NamedPreset) -> Html Msg
-presetListItemView activeId (id, (name, preset)) =
+presetListItemView : Id -> ( Id, NamedPreset ) -> Html Msg
+presetListItemView activeId ( id, ( name, preset ) ) =
     li
-        [ class (if id == activeId then "active" else "")
+        [ class
+            (if id == activeId then
+                "active"
+             else
+                ""
+            )
         , onClick (ActivatePreset id)
         ]
         [ text name ]
@@ -89,7 +94,7 @@ view model =
         [ (presetListView model.presets model.activeId)
         , model.presets
             |> Dict.toList
-            |> List.filter (\(id, p) -> id == model.activeId)
+            |> List.filter (\( id, p ) -> id == model.activeId)
             |> List.map presetView
             |> div [ class "anode-container" ]
         ]
@@ -102,21 +107,23 @@ update msg model =
             let
                 preset =
                     Dict.get id model.presets
+
                 name =
                     Dict.get id model.presets
                         |> Maybe.map fst
                         |> Maybe.withDefault "untitled"
+
                 ( updated, cmd ) =
                     preset
                         |> Maybe.map snd
-                        |> Maybe.map ( Preset.update msg )
-                        |> Maybe.map (\(p, ccMsg) -> (p, cc [ccMsg]))
+                        |> Maybe.map (Preset.update msg)
+                        |> Maybe.map (\( p, ccMsg ) -> ( p, cc [ ccMsg ] ))
                         |> Maybe.withDefault ( Preset.initialModel, Cmd.none )
+
                 presets =
-                    Dict.insert id (name, updated) model.presets
+                    Dict.insert id ( name, updated ) model.presets
             in
                 ( { model | presets = presets }, cmd )
-
 
         PresetRename id name ->
             let
@@ -150,15 +157,15 @@ update msg model =
                         , presets = Dict.insert model.nextId newPreset model.presets
                     }
             in
-               ( newModel, Cmd.none )
+                ( newModel, Cmd.none )
 
         ActivatePreset id ->
             -- FIXME: send the whole preset over MIDI
-            ({ model | activeId = id }, Cmd.none)
-
+            ( { model | activeId = id }, Cmd.none )
 
 
 port cc : List CCMessage -> Cmd msg
+
 
 
 -- port loadPresets : ({presets : List (String, Preset.Model)} -> msg) -> Sub msg
